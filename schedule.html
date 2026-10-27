@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week</title>
+<style>
+:root{--bg:#fafafa;--card:#fff;--fg:#111827;--mut:#6b7280;--bd:#e5e7eb;--ac:#4f46e5;--acf:#fff;--hl:#eef2ff;--err:#dc2626;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0d12;--card:#12151c;--fg:#f3f4f6;--mut:#9ca3af;--bd:#232834;--ac:#818cf8;--acf:#0b0d12;--hl:#1a1e2e;--err:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b0d12;--card:#12151c;--fg:#f3f4f6;--mut:#9ca3af;--bd:#232834;--ac:#818cf8;--acf:#0b0d12;--hl:#1a1e2e;--err:#f87171;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding:20px}
+.center{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:28px;width:100%;max-width:380px}
+h1{font-size:22px;margin:0 0 4px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--mut);font-size:13px;margin:0 0 20px}
+label{display:block;font-size:12px;color:var(--mut);margin:14px 0 6px;font-weight:500}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);outline:none}
+input:focus,select:focus{border-color:var(--ac)}
+.btn{border:1px solid var(--bd);background:var(--card);padding:9px 14px;border-radius:9px;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--ac)}
+.pri{background:var(--ac);color:var(--acf);border-color:var(--ac);font-weight:600}
+.pri:hover{opacity:.9}
+.full{width:100%;margin-top:20px;padding:11px}
+.dng{color:var(--err)}
+.err{color:var(--err);font-size:13px;margin-top:12px;min-height:18px}
+.lnk{background:none;border:0;color:var(--ac);cursor:pointer;padding:0}
+.alt{text-align:center;color:var(--mut);font-size:13px;margin-top:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+.top h1{margin:0}
+.row{display:flex;gap:8px;align-items:center}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;min-height:220px;display:flex;flex-direction:column;gap:8px}
+.day.now{border-color:var(--ac);background:linear-gradient(var(--hl),var(--card) 90px)}
+.dh{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:13px}
+.dh small{color:var(--ac);font-weight:500}
+.ev{border-left:3px solid var(--c);background:var(--bg);border-radius:8px;padding:7px 9px;cursor:pointer;text-align:left;border-top:0;border-right:0;border-bottom:0;width:100%}
+.ev:hover{background:var(--hl)}
+.ev b{display:block;font-size:13px;font-weight:600;word-break:break-word}
+.ev span{font-size:12px;color:var(--mut)}
+.emp{color:var(--mut);font-size:12px;opacity:.6;margin-top:2px}
+.plus{margin-top:auto;border:1px dashed var(--bd);background:none;border-radius:8px;padding:5px;color:var(--mut);cursor:pointer}
+.plus:hover{border-color:var(--ac);color:var(--ac)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9}
+.ov[hidden]{display:none}
+.md{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:24px;width:100%;max-width:400px;max-height:90vh;overflow:auto}
+.md h2{margin:0 0 4px;font-size:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+.sw{display:flex;gap:8px}
+.sw button{width:26px;height:26px;border-radius:50%;border:2px solid transparent;background:var(--c);cursor:pointer;padding:0}
+.sw button.on{border-color:var(--fg)}
+.note{color:var(--mut);font-size:12px;margin-top:18px}
+@media(max-width:980px){.week{grid-template-columns:1fr}.day{min-height:0}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="ov" id="ov" hidden><div class="md" id="md"></div></div>
+<script>
+(function(){
+var T={
+ru:{app:"Неделя",login:"Войти",reg:"Регистрация",user:"Логин",pass:"Пароль",pass2:"Повторите пароль",noacc:"Нет аккаунта?",have:"Уже есть аккаунт?",taken:"Такой логин уже занят",bad:"Неверный логин или пароль",ps:"Пароль: минимум 6 символов",us:"Логин: минимум 3 символа",mm:"Пароли не совпадают",set:"Настройки",lang:"Язык",theme:"Тема",auto:"Авто",light:"Светлая",dark:"Тёмная",out:"Выйти",delacc:"Удалить аккаунт",cdel:"Удалить аккаунт и расписание?",add:"Добавить",edit:"Изменить",title:"Название",day:"День",from:"С",to:"До",color:"Цвет",save:"Сохранить",del:"Удалить",cancel:"Отмена",free:"Свободно",today:"Сегодня",te:"Конец должен быть позже начала",hi:"Привет",note:"Данные хранятся в этом браузере",sub:"Расписание на неделю",close:"Закрыть"},
+en:{app:"Week",login:"Sign in",reg:"Create account",user:"Username",pass:"Password",pass2:"Repeat password",noacc:"No account yet?",have:"Already have an account?",taken:"Username is taken",bad:"Wrong username or password",ps:"Password: at least 6 characters",us:"Username: at least 3 characters",mm:"Passwords do not match",set:"Settings",lang:"Language",theme:"Theme",auto:"Auto",light:"Light",dark:"Dark",out:"Sign out",delacc:"Delete account",cdel:"Delete account and schedule?",add:"Add",edit:"Edit",title:"Title",day:"Day",from:"From",to:"To",color:"Color",save:"Save",del:"Delete",cancel:"Cancel",free:"Free",today:"Today",te:"End must be after start",hi:"Hi",note:"Data is stored in this browser",sub:"Your weekly schedule",close:"Close"},
+kk:{app:"Апта",login:"Кіру",reg:"Тіркелу",user:"Логин",pass:"Құпия сөз",pass2:"Құпия сөзді қайталаңыз",noacc:"Аккаунт жоқ па?",have:"Аккаунтыңыз бар ма?",taken:"Бұл логин бос емес",bad:"Логин немесе құпия сөз қате",ps:"Құпия сөз: кемінде 6 таңба",us:"Логин: кемінде 3 таңба",mm:"Құпия сөздер сәйкес емес",set:"Баптаулар",lang:"Тіл",theme:"Тақырып",auto:"Авто",light:"Жарық",dark:"Қараңғы",out:"Шығу",delacc:"Аккаунтты жою",cdel:"Аккаунт пен кестені жою керек пе?",add:"Қосу",edit:"Өзгерту",title:"Атауы",day:"Күні",from:"Бастау",to:"Аяқтау",color:"Түс",save:"Сақтау",del:"Жою",cancel:"Бас тарту",free:"Бос",today:"Бүгін",te:"Аяқталуы басталудан кейін болуы керек",hi:"Сәлем",note:"Деректер осы браузерде сақталады",sub:"Апталық кесте",close:"Жабу"}};
+var D={ru:["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"],en:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],kk:["Дүйсенбі","Сейсенбі","Сәрсенбі","Бейсенбі","Жұма","Сенбі","Жексенбі"]};
+var COL=["#4f46e5","#0ea5e9","#10b981","#f59e0b","#ef4444","#a855f7"];
+var NAMES={ru:"Русский",en:"English",kk:"Қазақша"};
+function ls(k,v){try{if(v===undefined){var r=localStorage.getItem(k);return r?JSON.parse(r):null}if(v===false)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+var lang=ls("lang")||((navigator.language||"ru").slice(0,2));if(!T[lang])lang="ru";
+var theme=ls("theme")||"auto",user=ls("session"),mode="login",ev=[];
+function t(k){return T[lang][k]}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function $(s){return document.querySelector(s)}
+function applyTheme(){if(theme==="auto")document.documentElement.removeAttribute("data-theme");else document.documentElement.setAttribute("data-theme",theme)}
+async function hash(s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function rnd(){var a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+function setLang(l){lang=l;ls("lang",l);document.documentElement.lang=l;document.title=t("app")}
+function render(){document.title=t("app");user?app():auth()}
+function langSel(id){return '<select id="'+id+'">'+Object.keys(NAMES).map(function(k){return '<option value="'+k+'"'+(k===lang?" selected":"")+'>'+NAMES[k]+'</option>'}).join("")+'</select>'}
+function auth(){
+var r=mode==="reg";
+$("#app").innerHTML='<div class="center"><div class="card"><h1>'+t("app")+'</h1><p class="sub">'+t("sub")+'</p>'+
+'<label>'+t("user")+'</label><input id="u" autocomplete="username" autocapitalize="off">'+
+'<label>'+t("pass")+'</label><input id="p" type="password" autocomplete="'+(r?"new":"current")+'-password">'+
+(r?'<label>'+t("pass2")+'</label><input id="p2" type="password" autocomplete="new-password">':'')+
+'<div class="err" id="e"></div><button class="btn pri full" id="go">'+(r?t("reg"):t("login"))+'</button>'+
+'<div class="alt">'+(r?t("have"):t("noacc"))+' <button class="lnk" id="sw">'+(r?t("login"):t("reg"))+'</button></div>'+
+'<div class="alt">'+langSel("l1")+'</div><div class="note" style="text-align:center">'+t("note")+'</div></div></div>';
+$("#l1").onchange=function(){setLang(this.value);render()};
+$("#sw").onclick=function(){mode=r?"login":"reg";auth()};
+$("#go").onclick=submit;
+$("#app").onkeydown=function(e){if(e.key==="Enter")submit()};
+async function submit(){
+var u=$("#u").value.trim().toLowerCase(),p=$("#p").value,E=$("#e"),us=ls("users")||{};
+if(u.length<3){E.textContent=t("us");return}
+if(r){
+if(p.length<6){E.textContent=t("ps");return}
+if(p!==$("#p2").value){E.textContent=t("mm");return}
+if(us[u]){E.textContent=t("taken");return}
+var s=rnd();us[u]={s:s,h:await hash(s+p)};ls("users",us);
+}else{
+if(!us[u]||us[u].h!==await hash(us[u].s+p)){E.textContent=t("bad");return}
+}
+user=u;ls("session",u);app();
+}}
+function app(){
+ev=ls("sch:"+user)||[];
+var now=(new Date().getDay()+6)%7,days=D[lang],h='';
+for(var d=0;d<7;d++){
+var list=ev.filter(function(e){return e.day===d}).sort(function(a,b){return a.start<b.start?-1:1});
+h+='<div class="day'+(d===now?" now":"")+'"><div class="dh"><span>'+days[d]+'</span>'+(d===now?'<small>'+t("today")+'</small>':'')+'</div>'+
+(list.length?list.map(function(e){return '<button class="ev" style="--c:'+esc(e.color)+'" data-id="'+e.id+'"><b>'+esc(e.title)+'</b><span>'+e.start+' – '+e.end+'</span></button>'}).join(""):'<div class="emp">'+t("free")+'</div>')+
+'<button class="plus" data-add="'+d+'">+</button></div>';}
+$("#app").innerHTML='<div class="wrap"><div class="top"><div><h1>'+t("hi")+', '+esc(user)+'</h1><div class="sub" style="margin:0">'+t("sub")+'</div></div><div class="row"><button class="btn pri" id="add">+ '+t("add")+'</button><button class="btn" id="st">'+t("set")+'</button></div></div><div class="week">'+h+'</div></div>';
+$("#add").onclick=function(){form(null,now)};
+$("#st").onclick=settings;
+document.querySelectorAll("[data-add]").forEach(function(b){b.onclick=function(){form(null,+b.dataset.add)}});
+document.querySelectorAll(".ev").forEach(function(b){b.onclick=function(){form(b.dataset.id)}});
+}
+function open(html){$("#md").innerHTML=html;$("#ov").hidden=false}
+function close(){$("#ov").hidden=true}
+$("#ov").onclick=function(e){if(e.target===this)close()};
+document.addEventListener("keydown",function(e){if(e.key==="Escape")close()});
+function form(id,day){
+var e=id?ev.filter(function(x){return x.id===id})[0]:{title:"",day:day,start:"09:00",end:"10:00",color:COL[0]},col=e.color;
+open('<h2>'+(id?t("edit"):t("add"))+'</h2><label>'+t("title")+'</label><input id="ti" maxlength="60" value="'+esc(e.title)+'">'+
+'<label>'+t("day")+'</label><select id="dy">'+D[lang].map(function(n,i){return '<option value="'+i+'"'+(i===e.day?" selected":"")+'>'+n+'</option>'}).join("")+'</select>'+
+'<div class="two"><div><label>'+t("from")+'</label><input id="s" type="time" value="'+e.start+'"></div><div><label>'+t("to")+'</label><input id="en" type="time" value="'+e.end+'"></div></div>'+
+'<label>'+t("color")+'</label><div class="sw" id="sw2">'+COL.map(function(c){return '<button style="--c:'+c+'" data-c="'+c+'" class="'+(c===col?"on":"")+'"></button>'}).join("")+'</div>'+
+'<div class="err" id="fe"></div><div class="acts">'+(id?'<button class="btn dng" id="dl">'+t("del")+'</button>':'')+'<button class="btn" id="cn">'+t("cancel")+'</button><button class="btn pri" id="sv">'+t("save")+'</button></div>');
+document.querySelectorAll("#sw2 button").forEach(function(b){b.onclick=function(){col=b.dataset.c;document.querySelectorAll("#sw2 button").forEach(function(x){x.classList.toggle("on",x===b)})}});
+$("#cn").onclick=close;
+if(id)$("#dl").onclick=function(){ev=ev.filter(function(x){return x.id!==id});ls("sch:"+user,ev);close();app()};
+$("#sv").onclick=function(){
+var ti=$("#ti").value.trim(),s=$("#s").value,en=$("#en").value;
+if(!ti)return $("#ti").focus();
+if(!s||!en||en<=s){$("#fe").textContent=t("te");return}
+var n={id:id||rnd(),title:ti,day:+$("#dy").value,start:s,end:en,color:col};
+ev=id?ev.map(function(x){return x.id===id?n:x}):ev.concat(n);
+ls("sch:"+user,ev);close();app();};
+$("#ti").focus();
+}
+function settings(){
+open('<h2>'+t("set")+'</h2><label>'+t("lang")+'</label>'+langSel("l2")+
+'<label>'+t("theme")+'</label><select id="th">'+[["auto","auto"],["light","light"],["dark","dark"]].map(function(o){return '<option value="'+o[0]+'"'+(theme===o[0]?" selected":"")+'>'+t(o[1])+'</option>'}).join("")+'</select>'+
+'<div class="acts" style="justify-content:space-between"><button class="btn dng" id="da">'+t("delacc")+'</button><button class="btn" id="lo">'+t("out")+'</button></div>'+
+'<div class="acts"><button class="btn pri" id="cl">'+t("close")+'</button></div><div class="note">'+t("note")+'</div>');
+$("#l2").onchange=function(){setLang(this.value);app();settings()};
+$("#th").onchange=function(){theme=this.value;ls("theme",theme);applyTheme()};
+$("#cl").onclick=close;
+$("#lo").onclick=function(){user=null;ls("session",false);close();mode="login";render()};
+$("#da").onclick=function(){if(!confirm(t("cdel")))return;var us=ls("users")||{};delete us[user];ls("users",us);ls("sch:"+user,false);user=null;ls("session",false);close();render()};
+}
+applyTheme();document.documentElement.lang=lang;render();
+})();
+</script>
+</body>
+</html>
